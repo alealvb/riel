@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "checkJs": true,
+    "allowJs": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["es2022", "dom", "es2019"]
+  },
+  "files": ["../src/index.ts"]
+}
