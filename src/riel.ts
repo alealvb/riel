@@ -26,7 +26,7 @@ export class Riel<
   fail<
     TAction extends (
       error: Error,
-      errCtx: ErrorContext,
+      errCtx: FlatType<Partial<ErrorContext>>,
       ctx: FlatType<Omit<Partial<Context>, keyof SafeContext> & SafeContext>
     ) => Record<string, any>
   >(action: TAction) {
@@ -42,8 +42,8 @@ export class Riel<
   failFast<
     TAction extends (
       error: Error,
-      errCtx: ErrorContext,
-      ctx: Partial<Context>
+      errCtx: FlatType<Partial<ErrorContext>>,
+      ctx: FlatType<Partial<Context>>
     ) => Record<string, any>
   >(action: TAction) {
     this.steps.push({ run: action, type: "FAILFAST" });
@@ -58,7 +58,10 @@ export class Riel<
   async run(
     params: InitialContext
   ): Promise<
-    Result<{ ctx: FlatType<Context> }, { error: Error; errorCtx: FlatType<Partial<ErrorContext>> }>
+    Result<
+      { ctx: FlatType<Context> },
+      { error: Error; errorCtx: FlatType<Partial<ErrorContext>> }
+    >
   > {
     let context = params;
     let errorContext: Partial<ErrorContext> = {};
@@ -83,6 +86,10 @@ export class Riel<
             ...errorContext,
             ...stepResult,
           };
+        }
+
+        if (step.type === "FAILFAST") {
+          break;
         }
       } else {
         const stepIndex = this.getNextStepIndex(currentStepIndex);
@@ -113,7 +120,10 @@ export class Riel<
       if (failed) {
         return {
           ok: false,
-          error: { error: error as unknown as Error, errorCtx: errorContext as FlatType<Partial<ErrorContext>> },
+          error: {
+            error: error as unknown as Error,
+            errorCtx: errorContext as FlatType<Partial<ErrorContext>>,
+          },
         };
       }
 
