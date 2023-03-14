@@ -216,3 +216,7 @@ export class Riel<
     return null;
   }
 }
+
+export function riel<Context extends Record<string, any> = {}>() {
+  return new Riel<Context>();
+}
