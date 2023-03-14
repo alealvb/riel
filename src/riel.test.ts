@@ -358,7 +358,6 @@ describe("Riel", () => {
         .step(subOperation.toStep())
         .fail((error, errorCtx, ctx) => {
           expect(error.message).toBe("foo");
-          // expect(errorCtx).toEqual({ foo: "bar" });
           return {};
         })
         .run({});
