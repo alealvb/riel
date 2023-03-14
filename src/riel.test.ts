@@ -347,5 +347,41 @@ describe("Riel", () => {
         })
         .run({});
     });
+
+    it("should be chainable with other steps and fail", async () => {
+      const subOperation = riel().step((ctx) => {
+        throw new Error("foo");
+        return {};
+      });
+
+      await riel()
+        .step(subOperation.toStep())
+        .fail((error, errorCtx, ctx) => {
+          expect(error.message).toBe("foo");
+          // expect(errorCtx).toEqual({ foo: "bar" });
+          return {};
+        })
+        .run({});
+    });
+
+    it("should be chainable with other steps and have access to the error context", async () => {
+      const subOperation = riel()
+        .step((ctx) => {
+          throw new Error("foo");
+          return {};
+        })
+        .fail((error, errorCtx, ctx) => {
+          return { foo: "bar" };
+        });
+
+      await riel()
+        .step(subOperation.toStep())
+        .fail((error, errorCtx, ctx) => {
+          expect(error.message).toBe("foo");
+          expect(errorCtx).toEqual({ foo: "bar" });
+          return {};
+        })
+        .run({});
+    });
   });
 });
