@@ -16,9 +16,21 @@ export class Riel<
   ) {
     this.steps.push({ run: action, type: "STEP" });
     return this as unknown as Riel<
-      Context & Awaited<ReturnType<TAction>>,
+      Context &
+        (Awaited<ReturnType<TAction>> extends Result<
+          infer CtxSuccess extends Record<string, any>,
+          Record<string, any>
+        >
+          ? CtxSuccess["ctx"]
+          : Awaited<ReturnType<TAction>>),
       InitialContext,
-      ErrorContext,
+      ErrorContext &
+        (Awaited<ReturnType<TAction>> extends Result<
+          any,
+          infer CtxError extends Record<string, any>
+        >
+          ? CtxError["errorCtx"]
+          : {}),
       SafeContext
     >;
   }
@@ -53,6 +65,14 @@ export class Riel<
       ErrorContext & Awaited<ReturnType<TAction>>,
       Context
     >;
+  }
+
+  toStep() {
+    return async (ctx: InitialContext) => {
+      const result = await this.run(ctx);
+
+      return { ...result, __rielResult: true };
+    };
   }
 
   async run(
@@ -103,10 +123,23 @@ export class Riel<
         try {
           const stepResult = await step.run(context);
           if (stepResult) {
-            context = {
-              ...context,
-              ...stepResult,
-            };
+            if (stepResult.__rielResult) {
+              if (stepResult.ok) {
+                context = {
+                  ...context,
+                  ...stepResult.value.ctx,
+                };
+              } else {
+                failed = true;
+                error = stepResult.error.error;
+                errorContext = stepResult.error.errorCtx;
+              }
+            } else {
+              context = {
+                ...context,
+                ...stepResult,
+              };
+            }
           }
         } catch (err) {
           failed = true;
