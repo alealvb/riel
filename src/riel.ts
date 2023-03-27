@@ -1,4 +1,4 @@
-import type { FlatType, Result, InferContext } from "./utils";
+import type { FlatType, Result, StepReturn } from "./utils";
 
 export class Riel<
   Context extends Record<string, any> = {},
@@ -7,11 +7,11 @@ export class Riel<
   SafeContext extends Record<string, any> = Context
 > {
   private steps: Array<{
-    run: (...args: any[]) => Record<string, any> | Promise<Record<string, any>>;
+    run: (...args: any[]) => StepReturn;
     type: "FAIL" | "STEP" | "FAILFAST";
   }> = [];
 
-  step<TAction extends (ctx: FlatType<Context>) => Record<string, any>>(
+  step<TAction extends (ctx: FlatType<Context>) => StepReturn>(
     action: TAction
   ) {
     this.steps.push({ run: action, type: "STEP" });
@@ -40,7 +40,7 @@ export class Riel<
       error: Error,
       errCtx: FlatType<Partial<ErrorContext>>,
       ctx: FlatType<Omit<Partial<Context>, keyof SafeContext> & SafeContext>
-    ) => Record<string, any>
+    ) => StepReturn
   >(action: TAction) {
     this.steps.push({ run: action, type: "FAIL" });
     return this as unknown as Riel<
@@ -56,7 +56,7 @@ export class Riel<
       error: Error,
       errCtx: FlatType<Partial<ErrorContext>>,
       ctx: FlatType<Partial<Context>>
-    ) => Record<string, any>
+    ) => StepReturn
   >(action: TAction) {
     this.steps.push({ run: action, type: "FAILFAST" });
     return this as unknown as Riel<

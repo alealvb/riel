@@ -15,3 +15,5 @@ export type InferContext<T> = T extends (ctx: infer TCtx) => Record<string, any>
   : T extends Promise<Record<string, any>>
   ? Awaited<T>
   : never;
+
+export type StepReturn = Record<string, any> | Promise<Record<string, any> | void> | void

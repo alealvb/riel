@@ -70,6 +70,17 @@ describe("Riel", () => {
         })
         .run({ foo: "bar" });
     });
+
+    it("should be able to return void", async () => {
+      await riel<{ foo: string }>()
+        .step(() => {
+          return;
+        })
+        .step((ctx) => {
+          expect(ctx.foo).toBe("bar");
+        })
+        .run({ foo: "bar" });
+    });
   });
 
   describe("#fail", () => {
@@ -147,6 +158,22 @@ describe("Riel", () => {
           return {};
         })
         .run({});
+    });
+
+    it("should be able to return void", async () => {
+      await riel<{ foo: string }>()
+        .step(() => {
+          throw new Error("foo");
+          return {};
+        })
+        .fail((error, errorCtx, ctx) => {
+          return;
+        })
+        .fail((error, errorCtx, ctx) => {
+          expect(error.message).toBe("foo");
+          return;
+        })
+        .run({ foo: "bar" });
     });
   });
 
@@ -273,6 +300,21 @@ describe("Riel", () => {
         failError: "baz",
         failFastError: "bar",
       });
+    });
+
+    it("should be able to return void", async () => {
+      const result = await riel<{ foo: string }>()
+        .step(() => {
+          throw new Error("foo");
+        })
+        .failFast((error, errorCtx, ctx) => {
+          expect(error.message).toBe("foo");
+          return;
+        })
+        .run({ foo: "bar" });
+
+      expect(result.ok).toBe(false);
+      expect((result as any).error.errorCtx).toEqual({});
     });
   });
 
