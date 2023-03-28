@@ -1,6 +1,6 @@
 {
   "name": "riel",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Riel is the way to business logic",
   "main": "./lib/cjs/index.js",
   "types": "./lib/cjs/types/index.d.ts",
