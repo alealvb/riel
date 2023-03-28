@@ -1,7 +1,7 @@
 {
   "name": "riel",
   "version": "0.0.3",
-  "description": "Riel is the way to business logic",
+  "description": "Riel is a library for composing business logic",
   "main": "./lib/cjs/index.js",
   "types": "./lib/cjs/types/index.d.ts",
   "repository": "https://github.com/alealvb/riel",
